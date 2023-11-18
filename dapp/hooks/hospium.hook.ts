@@ -20,10 +20,11 @@ export interface HospiumInterface {
   isBuying: boolean;
   approvedAmount?: BigNumber;
   approveAmount: (amount: string) => Promise<void>;
+  balanceOfInputToken?: BigNumber;
 }
 
 export function useHospium(): HospiumInterface {
-  const { address, isConnected } = useWalletContext();
+  const { address } = useWalletContext();
   const web3 = new Web3(Web3.givenProvider);
   const hospiumContractAddress = "0x74FA4eb5a2b312E0e877f8B862641639DDB75F65";
 
@@ -37,6 +38,7 @@ export function useHospium(): HospiumInterface {
     useState<BigNumber>();
   const [isBuying, setIsBuying] = useState(false);
   const [approvedAmount, setApprovedAmount] = useState<BigNumber>();
+  const [balanceOfInputToken, setBalanceOfInputToken] = useState<BigNumber>();
 
   function createContract(): Contract {
     return new web3.eth.Contract(HOSPIUM_ABI as any, hospiumContractAddress);
@@ -57,7 +59,7 @@ export function useHospium(): HospiumInterface {
       .catch(console.error);
     getInputTokenAddress()
       .then((v) => {
-        reloadApprovedData(v);
+        reloadInputTokenData(v);
         return v;
       })
       .then((v) => setInputTokenAddress(v))
@@ -67,22 +69,18 @@ export function useHospium(): HospiumInterface {
       .catch(console.error);
   }
 
-  function reloadApprovedData(tokenAddress?: string) {
+  function reloadInputTokenData(tokenAddress?: string) {
     getApprovedAmount(tokenAddress)
-      .then((v) => {
-        console.log("approved amount", v.toString());
-        return v;
-      })
       .then((v) => setApprovedAmount(v))
+      .catch(console.error);
+    getBalanceOfInputToken(tokenAddress)
+      .then((v) => setBalanceOfInputToken(v))
       .catch(console.error);
   }
 
   useEffect(() => {
-    if (isConnected) {
-      reload();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isConnected]);
+    reload();
+  }, []);
 
   async function getRemainingSupply(): Promise<BigNumber> {
     return new BigNumber(
@@ -181,9 +179,23 @@ export function useHospium(): HospiumInterface {
       })
       .catch(console.error)
       .finally(() => {
-        reloadApprovedData();
+        reloadInputTokenData();
         setIsBuying(false);
       });
+  }
+
+  async function getBalanceOfInputToken(
+    tokenAddress?: string
+  ): Promise<BigNumber> {
+    if ((!tokenAddress && !inputTokenAddress) || !address)
+      return new BigNumber(0);
+    const contract = new web3.eth.Contract(
+      TOKEN_ABI as any,
+      tokenAddress ?? inputTokenAddress
+    );
+    return new BigNumber(
+      web3.utils.fromWei(contract.methods.balanceOf(address), "ether")
+    );
   }
 
   return useMemo(
@@ -201,6 +213,7 @@ export function useHospium(): HospiumInterface {
       isBuying,
       approvedAmount,
       approveAmount,
+      balanceOfInputToken,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
@@ -213,6 +226,7 @@ export function useHospium(): HospiumInterface {
       estimatedReceivedTokens,
       isBuying,
       approvedAmount,
+      balanceOfInputToken,
     ]
   );
 }

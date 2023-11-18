@@ -32,6 +32,7 @@ function HomeContent() {
     isBuying,
     approvedAmount,
     approveAmount,
+    balanceOfInputToken,
   } = useHospium();
   const { chain, addContract, requestChangeToChain } = useMetaMask();
   const [amount, setAmount] = useState<string>("");
@@ -102,15 +103,25 @@ function HomeContent() {
             <h2 className="card-title">
               Get your hospium by buying <p className="text-primary">$HOSP</p>
             </h2>
-
-            <input
-              type="number"
-              placeholder="Amount"
-              className="input input-bordered input-primary w-full"
-              onWheel={(e) => e.currentTarget.blur()}
-              value={amount}
-              onChange={(e) => handleAmountChanged(e.target.value)}
-            />
+            <div
+              className="cursor-pointer"
+              onClick={() => setAmount(balanceOfInputToken?.toString() ?? "0")}
+              onKeyDown={() => {}}
+            >
+              Balance: {balanceOfInputToken?.toString() ?? "0"}{" "}
+              <strong className="text-secondary">DUSD</strong>
+            </div>
+            <div className="flex flex-row items-center">
+              <input
+                type="number"
+                placeholder="Amount"
+                className="input input-bordered input-primary w-full mr-4"
+                onWheel={(e) => e.currentTarget.blur()}
+                value={amount}
+                onChange={(e) => handleAmountChanged(e.target.value)}
+              />
+              <strong className="text-secondary">DUSD</strong>
+            </div>
             {estimatedReceivedTokens ? (
               <p>
                 Estimation: {estimatedReceivedTokens?.toString() ?? ""}{" "}
