@@ -37,8 +37,6 @@ function HomeContent() {
   const [amount, setAmount] = useState<string>("");
   const needsChainChange = chainId !== undefined && chain.chainId !== chainId;
 
-  console.log("needsChainChange", needsChainChange);
-
   function formatNumber(value: number): string {
     let postfix = "";
     let fixed = 0;
@@ -99,7 +97,7 @@ function HomeContent() {
             </button>
           )}
         </div>
-        <div className="card w-128 bg-slate-100 shadow-xl mt-16">
+        <div className="card mx-4 md:w-128 bg-slate-100 shadow-xl mt-16">
           <div className="card-body">
             <h2 className="card-title">
               Get your hospium by buying <p className="text-primary">$HOSP</p>
@@ -142,7 +140,7 @@ function HomeContent() {
             </button>
           </div>
         </div>
-        <div className="card w-128 bg-slate-100 shadow-xl mt-16">
+        <div className="card mx-4 md:w-128 bg-slate-100 shadow-xl mt-16">
           <div className="card-body">
             <h2 className="card-title">Statistics</h2>
             <p>
@@ -186,7 +184,7 @@ function HomeContent() {
             </p>
           </div>
         </div>
-        <div className="card w-128 bg-slate-100 shadow-xl mt-16">
+        <div className="card mx-4 md:w-128 bg-slate-100 shadow-xl mt-16">
           <div className="card-body">
             <h2 className="card-title">Infos</h2>
             <p>
@@ -209,7 +207,7 @@ function HomeContent() {
             </p>
           </div>
         </div>
-        <div className="card w-128 bg-slate-100 shadow-xl my-16">
+        <div className="card mx-4 md:w-128 bg-slate-100 shadow-xl my-16">
           <div className="card-body">
             <h2 className="card-title">Contracts</h2>
 
