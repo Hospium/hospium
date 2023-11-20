@@ -1,7 +1,7 @@
 import Web3 from "web3";
 import ERC20_ABI from "../lib/erc20.abi.json";
 import { useMemo } from "react";
-import { test } from "../lib/network";
+import { main } from "../lib/network";
 
 export interface MetaMaskInterface {
   isInstalled: boolean;
@@ -95,13 +95,13 @@ export function useMetaMask(): MetaMaskInterface {
   }
 
   function toChainObject(): MetaMaskChainInterface {
-    return test;
+    return main;
   }
 
   return useMemo(
     () => ({
       isInstalled,
-      chain: test,
+      chain: main,
       verifyAccount,
       requestAccount,
       requestChain,

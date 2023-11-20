@@ -44,38 +44,40 @@ export function useHospium(): HospiumInterface {
     return new web3.eth.Contract(HOSPIUM_ABI as any, hospiumContractAddress);
   }
 
+  function errorHandler(e: any) {}
+
   function reload() {
     getRemainingSupply()
       .then((v) => setRemainingSupply(v))
-      .catch(console.error);
+      .catch(errorHandler);
     getBurnedInput()
       .then((v) => setBurnedInput(v))
-      .catch(console.error);
+      .catch(errorHandler);
     getInputToLP()
       .then((v) => setInputToLP(v))
-      .catch(console.error);
+      .catch(errorHandler);
     getSwappedInput()
       .then((v) => setSwappedInput(v))
-      .catch(console.error);
+      .catch(errorHandler);
     getInputTokenAddress()
       .then((v) => {
         reloadInputTokenData(v);
         return v;
       })
       .then((v) => setInputTokenAddress(v))
-      .catch(console.error);
+      .catch(errorHandler);
     getOutputTokenAddress()
       .then((v) => setOutputTokenAddress(v))
-      .catch(console.error);
+      .catch(errorHandler);
   }
 
   function reloadInputTokenData(tokenAddress?: string) {
     getApprovedAmount(tokenAddress)
       .then((v) => setApprovedAmount(v))
-      .catch(console.error);
+      .catch(errorHandler);
     getBalanceOfInputToken(tokenAddress)
       .then((v) => setBalanceOfInputToken(v))
-      .catch(console.error);
+      .catch(errorHandler);
   }
 
   useEffect(() => {
@@ -149,7 +151,7 @@ export function useHospium(): HospiumInterface {
       .send({
         from: address,
       })
-      .catch(console.error)
+      .catch(errorHandler)
       .finally(() => {
         reload();
         setIsBuying(false);
@@ -182,7 +184,7 @@ export function useHospium(): HospiumInterface {
       .send({
         from: address,
       })
-      .catch(console.error)
+      .catch(errorHandler)
       .finally(() => {
         reloadInputTokenData();
         setIsBuying(false);

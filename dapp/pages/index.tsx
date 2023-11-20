@@ -45,6 +45,8 @@ function HomeContent() {
   const [amount, setAmount] = useState<string>("");
   const needsChainChange = chainId !== undefined && chain.chainId !== chainId;
 
+  console.info(`don't look at my console, get some hospium instead`);
+
   function formatNumber(value: number): string {
     let postfix = "";
     let fixed = 0;
@@ -124,7 +126,7 @@ function HomeContent() {
                 }
                 onKeyDown={() => {}}
               >
-                Balance: {balanceOfInputToken?.toString() ?? "0"}{" "}
+                Balance: {balanceOfInputToken?.toFixed(2).toString() ?? "0"}{" "}
                 <strong className="text-secondary">DUSD</strong>
               </div>
               <div className="flex flex-row items-center">

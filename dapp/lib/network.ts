@@ -1,15 +1,13 @@
 import { MetaMaskChainInterface } from "../hooks/metamask.hook";
 
-export const test: MetaMaskChainInterface = {
-  chainId: 1131,
-  chainName: "MetaChain (TestNet)",
+export const main: MetaMaskChainInterface = {
+  chainId: 1130,
+  chainName: "MetaChain",
   nativeCurrency: {
     name: "DFI",
     symbol: "DFI",
     decimals: 18,
   },
-  rpcUrls: ["https://dmc.mydefichain.com/testnet"],
-  blockExplorerUrls: ["https://testnet-dmc.mydefichain.com:8444"],
+  rpcUrls: ["https://dmc.mydefichain.com/mainnet"],
+  blockExplorerUrls: ["https://mainnet-dmc.mydefichain.com:8441/"],
 };
-
-// TODO: add testnet and mainnet DMC as soon as ready
