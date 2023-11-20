@@ -18,8 +18,15 @@ function Home() {
 }
 
 function HomeContent() {
-  const { isConnected, address, chain: chainId, connect } = useWalletContext();
   const {
+    isConnected,
+    address,
+    chain: chainId,
+    connect,
+    block,
+  } = useWalletContext();
+  const {
+    reload,
     remainingSupply,
     burnedInput,
     inputToLP,
@@ -78,123 +85,146 @@ function HomeContent() {
           <div className="flex-1">
             <a className="btn btn-ghost text-xl">Hospium</a>
           </div>
-          {needsChainChange ? (
-            <button
-              className="btn btn-primary"
-              onClick={() => requestChangeToChain(chain.chainId)}
-            >
-              {`Change network to ${chain.chainName}`}
+          <div className="flex flex-row gap-4">
+            <p className="text-sm text-slate-500">Block: {block}</p>
+            <button className="btn btn-primary" onClick={() => reload()}>
+              Reload
             </button>
-          ) : isConnected ? (
-            <button className="btn btn-ghost" disabled>
-              <p className="text-white">{`${address?.slice(
-                0,
-                4
-              )}...${address?.slice(-4)}`}</p>
-            </button>
-          ) : (
-            <button className="btn btn-primary" onClick={() => connect()}>
-              Connect your wallet
-            </button>
-          )}
+            {needsChainChange ? (
+              <button
+                className="btn btn-primary"
+                onClick={() => requestChangeToChain(chain.chainId)}
+              >
+                {`Change network to ${chain.chainName}`}
+              </button>
+            ) : isConnected ? (
+              <button className="btn btn-ghost" disabled>
+                <p className="text-white">{`${address?.slice(
+                  0,
+                  4
+                )}...${address?.slice(-4)}`}</p>
+              </button>
+            ) : (
+              <button className="btn btn-primary" onClick={() => connect()}>
+                Connect your wallet
+              </button>
+            )}
+          </div>
         </div>
-        <div className="card mx-4 md:w-128 bg-slate-100 shadow-xl mt-16">
-          <div className="card-body">
-            <h2 className="card-title">
-              Get your hospium by buying <p className="text-primary">$HOSP</p>
-            </h2>
-            <div
-              className="cursor-pointer"
-              onClick={() => setAmount(balanceOfInputToken?.toString() ?? "0")}
-              onKeyDown={() => {}}
-            >
-              Balance: {balanceOfInputToken?.toString() ?? "0"}{" "}
-              <strong className="text-secondary">DUSD</strong>
+        {isConnected ? (
+          <div className="card mx-4 md:w-128 bg-slate-100 shadow-xl mt-16">
+            <div className="card-body">
+              <h2 className="card-title">
+                Get your hospium by buying <p className="text-primary">$HOSP</p>
+              </h2>
+              <div
+                className="cursor-pointer"
+                onClick={() =>
+                  setAmount(balanceOfInputToken?.toString() ?? "0")
+                }
+                onKeyDown={() => {}}
+              >
+                Balance: {balanceOfInputToken?.toString() ?? "0"}{" "}
+                <strong className="text-secondary">DUSD</strong>
+              </div>
+              <div className="flex flex-row items-center">
+                <input
+                  type="number"
+                  placeholder="Amount"
+                  className="input input-bordered input-primary w-full mr-4"
+                  onWheel={(e) => e.currentTarget.blur()}
+                  value={amount}
+                  onChange={(e) => handleAmountChanged(e.target.value)}
+                />
+                <strong className="text-secondary">DUSD</strong>
+              </div>
+              {estimatedReceivedTokens ? (
+                <p>
+                  Estimation: {estimatedReceivedTokens?.toString() ?? ""}{" "}
+                  <strong className="text-primary">HOSP</strong>
+                </p>
+              ) : (
+                <p>
+                  Estimation:{" "}
+                  <strong className="text-sm font-normal text-slate-500">
+                    Please enter an amount
+                  </strong>
+                </p>
+              )}
+              <button
+                className="btn btn-block btn-primary"
+                onClick={() =>
+                  needsApproval() ? approveAmount(amount) : buyTokens(amount)
+                }
+              >
+                {isBuying ? (
+                  <span className="loading loading-dots loading-sm"></span>
+                ) : needsApproval() ? (
+                  "Approve"
+                ) : (
+                  "Buy"
+                )}
+              </button>
             </div>
-            <div className="flex flex-row items-center">
-              <input
-                type="number"
-                placeholder="Amount"
-                className="input input-bordered input-primary w-full mr-4"
-                onWheel={(e) => e.currentTarget.blur()}
-                value={amount}
-                onChange={(e) => handleAmountChanged(e.target.value)}
-              />
-              <strong className="text-secondary">DUSD</strong>
-            </div>
-            {estimatedReceivedTokens ? (
+          </div>
+        ) : (
+          <div className="card mx-4 md:w-128 bg-slate-100 shadow-xl mt-16">
+            <div className="card-body">
               <p>
-                Estimation: {estimatedReceivedTokens?.toString() ?? ""}{" "}
+                Please connect your wallet to be able to receive{" "}
                 <strong className="text-primary">HOSP</strong>
               </p>
-            ) : (
+            </div>
+          </div>
+        )}
+        {remainingSupply && inputToLP && burnedInput && swappedInput && (
+          <div className="card mx-4 md:w-128 bg-slate-100 shadow-xl mt-16">
+            <div className="card-body">
+              <h2 className="card-title">Statistics</h2>
               <p>
-                Estimation:{" "}
-                <strong className="text-sm font-normal text-slate-500">
-                  Please enter an amount
-                </strong>
+                Total supply: {formatNumber(8_000_000)}{" "}
+                <strong className="text-primary">HOSP</strong>
               </p>
-            )}
-            <button
-              className="btn btn-block btn-primary"
-              onClick={() =>
-                needsApproval() ? approveAmount(amount) : buyTokens(amount)
-              }
-            >
-              {isBuying ? (
-                <span className="loading loading-dots loading-sm"></span>
-              ) : needsApproval() ? (
-                "Approve"
-              ) : (
-                "Buy"
-              )}
-            </button>
+              <p>
+                Remaining supply:{" "}
+                {formatNumber(remainingSupply?.toNumber() ?? 0)}{" "}
+                <strong className="text-primary">HOSP</strong> (
+                {remainingSupply?.div(8_000_000).times(100).toFixed(8)}
+                %)
+              </p>
+              <p>
+                Initial price: 1{" "}
+                <strong className="text-secondary">DUSD</strong> /{" "}
+                <strong className="text-primary">HOSP</strong>
+              </p>
+              <p>
+                Max price: 50 <strong className="text-secondary">DUSD</strong> /{" "}
+                <strong className="text-primary">HOSP</strong>
+              </p>
+              <p>Burn rate: 66.7%</p>
+              <p>
+                Max burn: &gt;100 M{" "}
+                <strong className="text-secondary">DUSD</strong>
+              </p>
+              <p>
+                Added liquidity: {formatNumber(inputToLP?.toNumber() ?? 0)}{" "}
+                <strong className="text-secondary">DUSD</strong>
+              </p>
+              <p>
+                Burned: {formatNumber(burnedInput?.toNumber() ?? 0)}{" "}
+                <strong className="text-secondary">DUSD</strong>
+              </p>
+              <p>
+                Swapped: {formatNumber(swappedInput?.toNumber() ?? 0)}{" "}
+                <strong className="text-secondary">DUSD</strong>
+              </p>
+              <p className="text-sm font-normal text-slate-500">
+                (Amount of DUSD which are swapped to HOSP after adding to
+                liquidity pool)
+              </p>
+            </div>
           </div>
-        </div>
-        <div className="card mx-4 md:w-128 bg-slate-100 shadow-xl mt-16">
-          <div className="card-body">
-            <h2 className="card-title">Statistics</h2>
-            <p>
-              Total supply: {formatNumber(8_000_000)}{" "}
-              <strong className="text-primary">HOSP</strong>
-            </p>
-            <p>
-              Remaining supply: {formatNumber(remainingSupply?.toNumber() ?? 0)}{" "}
-              <strong className="text-primary">HOSP</strong> (
-              {remainingSupply?.div(8_000_000).times(100).toFixed(8)}
-              %)
-            </p>
-            <p>
-              Initial price: 1 <strong className="text-secondary">DUSD</strong>{" "}
-              / <strong className="text-primary">HOSP</strong>
-            </p>
-            <p>
-              Max price: 50 <strong className="text-secondary">DUSD</strong> /{" "}
-              <strong className="text-primary">HOSP</strong>
-            </p>
-            <p>Burn rate: 66.7%</p>
-            <p>
-              Max burn: &gt;100 M{" "}
-              <strong className="text-secondary">DUSD</strong>
-            </p>
-            <p>
-              Added liquidity: {formatNumber(inputToLP?.toNumber() ?? 0)}{" "}
-              <strong className="text-secondary">DUSD</strong>
-            </p>
-            <p>
-              Burned input: {formatNumber(burnedInput?.toNumber() ?? 0)}{" "}
-              <strong className="text-secondary">DUSD</strong>
-            </p>
-            <p>
-              Swapped input: {formatNumber(swappedInput?.toNumber() ?? 0)}{" "}
-              <strong className="text-secondary">DUSD</strong>
-            </p>
-            <p className="text-sm font-normal text-slate-500">
-              (Amount of DUSD which are swapped to HOSP after adding to
-              liquidity pool)
-            </p>
-          </div>
-        </div>
+        )}
         <div className="card mx-4 md:w-128 bg-slate-100 shadow-xl mt-16">
           <div className="card-body">
             <h2 className="card-title">Infos</h2>
@@ -208,17 +238,17 @@ function HomeContent() {
               <strong className="text-secondary">DUSD</strong>.
             </p>
             <p>
-              50% of the <strong className="text-secondary">DUSD</strong> is
-              burned and the rest is made available as liquidity on vanilla
-              swap, which is locked into the smart contract forever.
+              66.67% <strong className="text-secondary">DUSD</strong> burned
             </p>
             <p>
-              0% team allocation - 50% community - 50% as liquidity locked in
-              the Smart Contract
+              33.33% <strong className="text-secondary">DUSD</strong> used to
+              form liquidity on Vanilla Swap
             </p>
+            <strong>Tokenomics</strong>
+            <p>100% community allocation - 0% team allocation</p>
           </div>
         </div>
-        <div className="card mx-4 md:w-128 bg-slate-100 shadow-xl my-16">
+        <div className="card mx-4 md:w-128 bg-slate-100 shadow-xl mt-16">
           <div className="card-body">
             <h2 className="card-title">Contracts</h2>
 
@@ -232,7 +262,7 @@ function HomeContent() {
                 outputTokenAddress && addContract(outputTokenAddress)
               }
             >
-              Add HOSP contract
+              Add HOSP to MetaMask
             </button>
             <p className="mt-4">
               <strong className="text-secondary">DUSD</strong>:{" "}
@@ -244,8 +274,17 @@ function HomeContent() {
                 inputTokenAddress && addContract(inputTokenAddress)
               }
             >
-              Add DUSD contract
+              Add DUSD to MetaMask
             </button>
+          </div>
+        </div>
+        <div className="card mx-4 md:w-128 bg-slate-100 shadow-xl my-16">
+          <div className="card-body">
+            <h2 className="card-title">Disclaimer</h2>
+            <p>
+              Anyone buying or interacting with Hospium is doing so at their own
+              risk. We take no responsibility whatsoever.
+            </p>
           </div>
         </div>
       </main>

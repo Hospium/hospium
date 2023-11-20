@@ -24,7 +24,7 @@ export interface HospiumInterface {
 }
 
 export function useHospium(): HospiumInterface {
-  const { address } = useWalletContext();
+  const { address, chain, block } = useWalletContext();
   const web3 = new Web3(Web3.givenProvider);
   const hospiumContractAddress = "0x74FA4eb5a2b312E0e877f8B862641639DDB75F65";
 
@@ -80,7 +80,11 @@ export function useHospium(): HospiumInterface {
 
   useEffect(() => {
     reload();
-  }, []);
+  }, [address, chain, block]);
+
+  useEffect(() => {
+    reloadInputTokenData();
+  }, [address]);
 
   async function getRemainingSupply(): Promise<BigNumber> {
     return new BigNumber(
@@ -153,7 +157,8 @@ export function useHospium(): HospiumInterface {
   }
 
   async function getApprovedAmount(tokenAddress?: string): Promise<BigNumber> {
-    if (!tokenAddress && !inputTokenAddress) return Promise.reject();
+    if ((!tokenAddress && !inputTokenAddress) || !address)
+      return Promise.reject();
     const contract = new web3.eth.Contract(
       TOKEN_ABI as any,
       tokenAddress ?? inputTokenAddress
@@ -188,13 +193,16 @@ export function useHospium(): HospiumInterface {
     tokenAddress?: string
   ): Promise<BigNumber> {
     if ((!tokenAddress && !inputTokenAddress) || !address)
-      return new BigNumber(0);
+      return Promise.reject();
     const contract = new web3.eth.Contract(
       TOKEN_ABI as any,
       tokenAddress ?? inputTokenAddress
     );
     return new BigNumber(
-      web3.utils.fromWei(contract.methods.balanceOf(address), "ether")
+      web3.utils.fromWei(
+        await contract.methods.balanceOf(address).call(),
+        "ether"
+      )
     );
   }
 
