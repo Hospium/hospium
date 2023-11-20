@@ -127,7 +127,7 @@ function HomeContent() {
               <div
                 className="cursor-pointer"
                 onClick={() =>
-                  setAmount(balanceOfInputToken?.toString() ?? "0")
+                  handleAmountChanged(balanceOfInputToken?.toString() ?? "0")
                 }
                 onKeyDown={() => {}}
               >
