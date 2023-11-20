@@ -88,8 +88,13 @@ function HomeContent() {
             <a className="btn btn-ghost text-xl">Hospium</a>
           </div>
           <div className="flex flex-row gap-4">
-            <p className="text-sm text-slate-500">Block: {block}</p>
-            <button className="btn btn-primary" onClick={() => reload()}>
+            <p className="text-sm text-slate-500 hidden md:flex">
+              Block: {block}
+            </p>
+            <button
+              className="btn btn-primary hidden md:flex"
+              onClick={() => reload()}
+            >
               Reload
             </button>
             {needsChainChange ? (
@@ -254,7 +259,7 @@ function HomeContent() {
           <div className="card-body">
             <h2 className="card-title">Contracts</h2>
 
-            <p className="mt-4">
+            <p className="mt-4 break-all text-sm">
               <strong className="text-primary">HOSP</strong>:{" "}
               {outputTokenAddress}
             </p>
@@ -266,7 +271,7 @@ function HomeContent() {
             >
               Add HOSP to MetaMask
             </button>
-            <p className="mt-4">
+            <p className="mt-4 break-all text-sm">
               <strong className="text-secondary">DUSD</strong>:{" "}
               {inputTokenAddress}
             </p>
